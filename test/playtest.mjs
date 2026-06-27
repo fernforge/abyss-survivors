@@ -13,7 +13,7 @@ if (!process.env.CHROME_BIN) {
   try { const v = readdirSync(base).find(d => d.startsWith('linux-')); if (v) { const c = `${base}/${v}/chrome-headless-shell-linux64/chrome-headless-shell`; if (existsSync(c)) process.env.CHROME_BIN = c; } } catch {}
 }
 
-const GAME_URL = 'http://localhost:3000';
+const GAME_URL = process.env.GAME_URL || 'http://localhost:3000';
 const errors = [];
 const logs = [];
 
