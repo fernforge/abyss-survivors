@@ -6,6 +6,11 @@ and a tiny Node/Express + `ws` server for online co-op. No build step, no framew
 
 > *Move to survive. The dark does the rest.*
 
+### ▶ [**Play it now in your browser →**](https://fernforge.github.io/abyss-survivors/)
+
+No install needed. Solo and **same-device co-op (2–4 players)** work right on the page.
+Online room-code co-op needs the bundled Node server — run it locally (see Quick start) or deploy `server.js`.
+
 ---
 
 ## Quick start

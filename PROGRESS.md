@@ -10,7 +10,20 @@ canvas art, same-device (1-4 local) AND networked co-op, clean flow, original fe
 NOTE: in this sandbox, launch server via Bash `run_in_background:true` and curl with
 `dangerouslyDisableSandbox:true` (plain backgrounded node + curl returns 000). Server CONFIRMED WORKING.
 
-## Status: ✅ BUILD COMPLETE — runtime-tested headlessly AND in a real browser. 0 known bugs.
+## Status: ✅ BUILD COMPLETE + PUBLISHED to GitHub & live on GitHub Pages. 0 known bugs.
+
+### 🌐 PUBLISHED (this run)
+- **Repo:** https://github.com/fernforge/abyss-survivors (public, owner `fernforge`, pushed via `GH_TOKEN`).
+- **Live game:** https://fernforge.github.io/abyss-survivors/ — solo + same-device co-op fully playable.
+- Pages deploys via **GitHub Actions** (`.github/workflows/pages.yml`) uploading `public/` as the Pages
+  artifact (Pages `build_type=workflow`). Push to `main` → auto-redeploy. All asset paths are RELATIVE so it
+  works under the `/abyss-survivors/` subpath.
+- Online co-op needs the Node+ws server (Pages can't host it). Graceful degradation added: `STATIC_HOST`
+  detection in main.js (github.io / pages.dev / file:) → shows `#onlineNote` and greys out Host/Join cards.
+- Verified LIVE with Playwright (`/tmp/playlive.mjs`, Chromium at `/ms-playwright/chromium-1228/...`): page
+  loads, multiplayer note+disabled cards correct, full solo run starts with HUD/minimap/tiles rendering,
+  **0 console/page errors**. Screenshots: `test/livepages.png`, `test/livegameplay.png`.
+- Git identity: `fernforge` / `fernforgehq@gmail.com`. `.gitignore` excludes node_modules, .chromelibs, .cb.
 
 Everything in the original task is implemented, balanced, and verified. All 4 test harnesses are GREEN and
 a real headless-Chrome playtest passes with **0 console/page errors**.
@@ -85,5 +98,6 @@ host runs sim & streams snapshots @15Hz, guests send input @30Hz & render interp
 - window.__settings mirrors Save.data.settings (minimap/shake) — render.js reads it.
 
 ## Next concrete step
-Nothing required — the build satisfies the task. If continuing, do a real-device mobile touch check or a
-deeper per-character balance pass. Otherwise it's ready to play at http://localhost:3000.
+Nothing required — game is built, published, and live at https://fernforge.github.io/abyss-survivors/ .
+Any push to `main` auto-redeploys Pages. If continuing: real-device mobile touch check, deeper per-character
+balance, or stand up a public ws server so online co-op works from the Pages site too.
