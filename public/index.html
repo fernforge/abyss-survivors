@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0a0814" />
+<title>Abyss Survivors</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<!-- In-game HUD -->
+<div id="hud" class="hidden">
+  <div id="hudTop">
+    <div class="hud-stat" id="hudTimer">00:00</div>
+    <div class="hud-stat"><span id="hudLevel">Lv 1</span></div>
+    <div class="hud-bar-wrap"><div id="xpBar"></div></div>
+    <div class="hud-stat">💀 <span id="hudKills">0</span></div>
+    <div class="hud-stat">🪙 <span id="hudGold">0</span></div>
+  </div>
+  <div id="corruptionWrap" title="Corruption — harder enemies, richer rewards">
+    <span class="cor-label">CORRUPTION</span>
+    <div id="corruptionBar"><div id="corruptionFill"></div></div>
+    <span id="corruptionVal">0</span>
+  </div>
+  <div id="affinityRow"></div>
+  <div id="hudBottom"></div>
+  <button id="pauseBtn" title="Pause (Esc)">❚❚</button>
+  <div id="touchPad" class="hidden"><div class="stickBase"></div><div class="stickKnob"></div></div>
+</div>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<!-- Screens -->
+<div id="screens">
+  <!-- Title -->
+  <section id="menu" class="screen">
+    <div class="title-art">
+      <h1 class="game-title">ABYSS<span>SURVIVORS</span></h1>
+      <p class="tagline">Move to survive. The dark does the rest.</p>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn big" data-go="charSelect">▶ Play</button>
+      <button class="btn" data-go="modeSelect">👥 Multiplayer</button>
+      <button class="btn" data-go="achievements">🏆 Achievements</button>
+      <button class="btn" data-go="codex">📖 Codex</button>
+      <button class="btn" data-go="settings">⚙ Settings</button>
+    </div>
+    <div class="version">v1.0 · arrows / WASD to move</div>
+  </section>
+
+  <!-- Character select -->
+  <section id="charSelect" class="screen hidden">
+    <h2 class="screen-title">Choose Your Survivor</h2>
+    <div id="charGrid" class="grid"></div>
+    <div class="row">
+      <button class="btn ghost" data-back="menu">← Back</button>
+      <button class="btn big" id="charConfirm" disabled>Next: Stage →</button>
+    </div>
+  </section>
+
+  <!-- Stage select -->
+  <section id="stageSelect" class="screen hidden">
+    <h2 class="screen-title">Choose Your Realm</h2>
+    <div id="stageGrid" class="grid"></div>
+    <div class="row">
+      <button class="btn ghost" data-back="charSelect">← Back</button>
+      <button class="btn big" id="stageConfirm" disabled>Begin Descent ⚔</button>
+    </div>
+  </section>
+
+  <!-- Mode select -->
+  <section id="modeSelect" class="screen hidden">
+    <h2 class="screen-title">Multiplayer</h2>
+    <div id="modeGrid" class="grid">
+      <button class="mode-card" data-mode="local2"><div class="mode-ico">🎮</div><h3>Same-Device Co-op</h3><p>2–4 players, one screen. Each player gets their own keys (Arrows/WASD · IJKL · Numpad · TFGH).</p></button>
+      <button class="mode-card" data-mode="host"><div class="mode-ico">🌐</div><h3>Host Online</h3><p>Create a room and share a 4-letter code. Up to 4 players over the network.</p></button>
+      <button class="mode-card" data-mode="join"><div class="mode-ico">🔗</div><h3>Join Online</h3><p>Enter a friend's room code to drop into their run.</p></button>
+    </div>
+    <p id="onlineNote" class="hint hidden">🌐 Online co-op needs the game's own server. You're on the static web build (GitHub Pages), so hosting/joining rooms is disabled here — <b>Same-Device Co-op works great</b>. To play online, run the project locally (<code>npm start</code>) or deploy the included Node server.</p>
+    <div class="row"><button class="btn ghost" data-back="menu">← Back</button></div>
+  </section>
+
+  <!-- Local co-op count -->
+  <section id="localSetup" class="screen hidden">
+    <h2 class="screen-title">Same-Device Co-op</h2>
+    <p class="hint">How many players? Each picks a character next.</p>
+    <div id="localCount" class="grid"></div>
+    <div id="localChars"></div>
+    <div class="row">
+      <button class="btn ghost" data-back="modeSelect">← Back</button>
+      <button class="btn big" id="localStart">To Stage →</button>
+    </div>
+  </section>
+
+  <!-- Online lobby -->
+  <section id="lobby" class="screen hidden">
+    <h2 class="screen-title">Online Lobby</h2>
+    <div id="lobbyCode" class="room-code"></div>
+    <div id="joinForm" class="hidden">
+      <input id="codeInput" maxlength="4" placeholder="CODE" autocomplete="off" />
+      <button class="btn" id="joinGo">Join</button>
+    </div>
+    <div class="lobby-cols">
+      <div><h3>Players</h3><div id="lobbyPlayers" class="lobby-list"></div></div>
+      <div><h3>Your Character</h3><div id="lobbyChars" class="grid small"></div></div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="lobbyBack">← Leave</button>
+      <button class="btn big" id="lobbyStart">Start Run ⚔</button>
+    </div>
+    <p id="lobbyHint" class="hint"></p>
+  </section>
+
+  <!-- Achievements -->
+  <section id="achievements" class="screen hidden">
+    <h2 class="screen-title">Achievements <span id="achCount" class="muted"></span></h2>
+    <div id="achFilter" class="row small-row">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="done">Unlocked</button>
+      <button class="chip" data-filter="locked">Locked</button>
+    </div>
+    <div id="achGrid" class="ach-grid"></div>
+    <div class="row"><button class="btn ghost" data-back="menu">← Back</button></div>
+  </section>
+
+  <!-- Codex -->
+  <section id="codex" class="screen hidden">
+    <h2 class="screen-title">Codex</h2>
+    <div class="row small-row" id="codexTabs">
+      <button class="chip active" data-tab="weapons">Weapons</button>
+      <button class="chip" data-tab="passives">Items</button>
+      <button class="chip" data-tab="enemies">Bestiary</button>
+      <button class="chip" data-tab="features">Features</button>
+    </div>
+    <div id="codexBody" class="codex-body"></div>
+    <div class="row"><button class="btn ghost" data-back="menu">← Back</button></div>
+  </section>
+
+  <!-- Settings -->
+  <section id="settings" class="screen hidden">
+    <h2 class="screen-title">Settings</h2>
+    <div class="settings-list">
+      <label>Music <input type="range" id="musicVol" min="0" max="1" step="0.05" /></label>
+      <label>Sound FX <input type="range" id="sfxVol" min="0" max="1" step="0.05" /></label>
+      <label class="toggle">Minimap <input type="checkbox" id="minimapToggle" checked /></label>
+      <label class="toggle">Screen Shake <input type="checkbox" id="shakeToggle" checked /></label>
+      <button class="btn danger" id="wipeSave">Erase All Progress</button>
+    </div>
+    <div class="row"><button class="btn ghost" data-back="menu">← Back</button></div>
+  </section>
+
+  <!-- Level up draft -->
+  <section id="levelup" class="screen overlay hidden">
+    <h2 id="levelupTitle" class="screen-title">Level Up!</h2>
+    <div id="levelupCards" class="cards"></div>
+    <button class="btn ghost small" id="rerollBtn">🎲 Skip</button>
+  </section>
+
+  <!-- Pause -->
+  <section id="pause" class="screen overlay hidden">
+    <h2 class="screen-title">Paused</h2>
+    <div id="pauseStats" class="pause-stats"></div>
+    <div class="menu-buttons">
+      <button class="btn big" id="resumeBtn">Resume</button>
+      <button class="btn" id="quitBtn">Abandon Run</button>
+    </div>
+  </section>
+
+  <!-- Game over -->
+  <section id="gameover" class="screen overlay hidden">
+    <h2 id="gameoverTitle" class="screen-title">You Fell</h2>
+    <div id="gameoverStats" class="pause-stats"></div>
+    <div id="newAch" class="new-ach"></div>
+    <div class="menu-buttons">
+      <button class="btn big" id="againBtn">Try Again</button>
+      <button class="btn" id="menuBtn">Main Menu</button>
+    </div>
+  </section>
+</div>
+
+<div id="startGate">
+  <button id="startGateBtn">⚔ ABYSS SURVIVORS — Click to Enter</button>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

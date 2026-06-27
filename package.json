@@ -1,0 +1,17 @@
+{
+  "name": "abyss-survivors",
+  "version": "1.0.0",
+  "description": "Abyss Survivors - a Vampire Survivors-style roguelike with same-device and networked multiplayer",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test/simtest.mjs && node test/rendertest.mjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "puppeteer": "^25.2.0",
+    "ws": "^8.18.0"
+  }
+}

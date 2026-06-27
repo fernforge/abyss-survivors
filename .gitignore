@@ -1,0 +1,8 @@
+node_modules/
+.chromelibs/
+.cb/
+.cb-claude.log
+test/playtest.png
+*.log
+npm-debug.log*
+.DS_Store
